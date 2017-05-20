@@ -1,0 +1,47 @@
+<html>
+<head>
+    <title>{% block title %}Crowd Pins{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+<body>
+
+<div id="content">
+    <h1 id="message"></h1>
+</div>
+
+    <script type="text/javascript">
+
+        var url = {{ url | tojson }};
+        console.log(url);
+
+        $(document).ready(function(){
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position){
+                    $.ajax({
+                        method: "PUT",
+                        url: url,
+                        contentType:"application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            'latitude': position.coords.latitude,
+                            'longitude': position.coords.longitude
+                        })
+                    }).done(function() {
+                        $('#message').text('Ubicación actualizada, muchas gracias!!!')
+                    })
+
+                }, function(){
+                    $('#message').text('Error while getting the coordinates');
+                });
+            } else {
+                $('#message').text('It seems like Geolocation, which is required for this page, is not enabled in your browser. Please use a browser which supports it.');
+            }
+        });
+
+
+    </script>
+
+</body>
+</html>
+
+

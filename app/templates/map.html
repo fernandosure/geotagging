@@ -1,0 +1,72 @@
+<html>
+<head>
+    <title>{% block title %}Crowd Pins{% endblock %}</title>
+
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDKXpAHG_7PNCfdDOK-0m1SnLlx8PZlhTc" type="text/javascript"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/gmaps.js') }}"></script>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script type="text/javascript">
+
+        var locations = {{ locations | tojson  }};
+        console.log(locations);
+
+        var map;
+        $(document).ready(function(){
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position){
+                    setLocation(position.coords.latitude,position.coords.longitude,18);
+                    renderMarkers();
+                }, function(){
+                    setLocation(2.8,-187.3,10)
+                    renderMarkers();
+                    console.log('Error while getting the coordinates');
+                });
+            } else {
+                setLocation(2.8,-187.3,4);
+                renderMarkers();
+                alert('It seems like Geolocation, which is required for this page, is not enabled in your browser. Please use a browser which supports it.');
+            }
+
+            function setLocation(lat,long,zoom){
+                console.log('Your latitude is :'+lat+' and longitude is '+long);
+                 map = new GMaps({
+                    div: '#map',
+                    lat: lat,
+                    lng: long,
+                    zoom: zoom
+                });
+            }
+
+            function setMarker(lat,long,title, infoWindowContent){
+                map.addMarker({
+                    lat: lat,
+                    lng: long,
+                    title: title,
+                    infoWindow: {
+                      content: infoWindowContent
+                    }
+                })
+            }
+
+            function renderMarkers(){
+                locations.forEach(function(location){
+                    setMarker(location.latitude,location.longitude,location.title,'<b>' + location.title + '</b>')
+                })
+            }
+
+        });
+
+    </script>
+</body>
+</html>
+
+
